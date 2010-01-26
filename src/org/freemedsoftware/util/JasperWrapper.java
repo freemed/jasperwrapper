@@ -7,6 +7,7 @@ package org.freemedsoftware.util;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -30,6 +31,10 @@ public class JasperWrapper {
 
 	private static Hashtable<String, String> arguments = new Hashtable<String, String>();
 
+	private static HashMap<String, String> hm = new HashMap<String, String>();
+
+	private static String[] VALID_FORMATS = { "PDF", "HTML", "XML", "XLS" };
+
 	public JasperWrapper() {
 		super();
 	}
@@ -37,28 +42,8 @@ public class JasperWrapper {
 	public static void main(String[] args) {
 		readParameters(args);
 		if (!testParameters()) {
-			// Usage screen
-			System.out.println("JasperWrapper version " + VERSION);
-			System.out.println("command line call for JasperReports");
-			System.out.println("Original code (c) 2003 ComSoft GbR Berlin");
-			System.out.println("Modified by Jeff Buchbinder under the GPL");
-			System.out.println("");
-			System.out.println("usage: JasperWrapper.jar [arguments]");
-			System.out.println("");
-			System.out.println("arguments: (--{argument}={parameter}");
-			System.out.println("dbdriver    javaClass for DBConnect");
-			System.out.println("dburl       connection String for DB");
-			System.out.println("dbuser      user for DBConnect");
-			System.out.println("dbpass      password for DBConnect");
-			System.out.println("report      name report file");
-			System.out.println("ipath       input path containing all files");
-			System.out.println("opath       output path");
-			System.out
-					.println("format      output format {PDF,HTML,XML,XLS}, defaults to PDF");
-
-			System.out.println(arguments.toString());
+			showSyntax();
 		} else {
-			HashMap<String, String> hm = new HashMap<String, String>();
 			Connection conn = null;
 			Properties props = new Properties();
 			String format = "PDF";
@@ -88,6 +73,7 @@ public class JasperWrapper {
 				System.out.println("JasperWrapper Database Exception occured: "
 						+ e1.getMessage());
 				e1.printStackTrace();
+				System.exit(1);
 			}
 			try {
 				if (conn != null) {
@@ -176,7 +162,35 @@ public class JasperWrapper {
 		}
 	}
 
+	private static void showSyntax() {
+		// Usage screen
+		System.out.println("JasperWrapper version " + VERSION);
+		System.out.println("command line call for JasperReports");
+		System.out.println("Original code (c) 2003 ComSoft GbR Berlin");
+		System.out.println("Modified by Jeff Buchbinder under the GPL");
+		System.out.println("");
+		System.out
+				.println("usage: JasperWrapper.jar [arguments] [[key] [value] ...]");
+		System.out.println("");
+		System.out.println("arguments: ( --{argument}={parameter} )");
+		System.out.println("\tdbdriver    javaClass for DBConnect");
+		System.out.println("\tdburl       connection String for DB");
+		System.out.println("\tdbuser      user for DBConnect");
+		System.out.println("\tdbpass      password for DBConnect");
+		System.out.println("\treport      name report file");
+		System.out.println("\tipath       input path containing all files");
+		System.out.println("\topath       output path");
+		System.out
+				.println("\tformat      output format {PDF,HTML,XML,XLS} (defaults to PDF)");
+		System.out.println("");
+
+		System.out.println(arguments.toString());
+		System.exit(1);
+	}
+
 	private static void readParameters(String[] args) {
+		int pPos = 0;
+		String hold = null;
 		arguments.clear();
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].substring(0, 2).equals("--")) {
@@ -186,6 +200,13 @@ public class JasperWrapper {
 					arguments.put(workpar.substring(0, workpar.indexOf("="))
 							.toLowerCase(), workpar.substring(workpar
 							.indexOf("=") + 1));
+				}
+			} else {
+				if (hold == null) {
+					hold = args[i];
+				} else {
+					hm.put(hold, args[i]);
+					hold = null;
 				}
 			}
 		}
@@ -206,6 +227,11 @@ public class JasperWrapper {
 		// if(arguments.get("opath")==null) booValue = false;
 		if (arguments.get("ipath") == null)
 			booValue = false;
+		if ((arguments.get("format") != null)
+				&& !Arrays.asList(VALID_FORMATS).contains(
+						arguments.get("format"))) {
+			booValue = false;
+		}
 
 		return booValue;
 	}
