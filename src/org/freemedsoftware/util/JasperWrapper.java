@@ -51,7 +51,7 @@ public class JasperWrapper {
 
 			// Parameters ok
 			try {
-				dbDriver = arguments.get("dbdriver").toUpperCase();
+				dbDriver = arguments.get("dbdriver");
 			} catch (Exception e1) {
 				dbDriver = "com.mysql.jdbc.Driver";
 			}
@@ -66,7 +66,7 @@ public class JasperWrapper {
 			try {
 				props.put("user", arguments.get("dbuser"));
 				props.put("password", arguments.get("dbpass"));
-				Class.forName(arguments.get("dbdriver")).newInstance();
+				Class.forName(dbDriver).newInstance();
 				conn = DriverManager.getConnection(arguments.get("dburl"),
 						props);
 			} catch (Exception e1) {
@@ -189,7 +189,6 @@ public class JasperWrapper {
 	}
 
 	private static void readParameters(String[] args) {
-		int pPos = 0;
 		String hold = null;
 		arguments.clear();
 		for (int i = 0; i < args.length; i++) {
