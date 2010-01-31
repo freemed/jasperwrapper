@@ -78,12 +78,15 @@ public class JasperWrapper {
 			try {
 				if (conn != null) {
 					JasperReport jR = null;
-					if (arguments.get("report").toLowerCase().endsWith(".xml")) {
+					if (arguments.get("report").toLowerCase().endsWith(".jrxml")) {
+						System.out.println("Loading report " + arguments.get("report"));
 						JasperDesign jD = JRXmlLoader.load(arguments
 								.get("ipath")
 								+ arguments.get("report"));
+						System.out.println("Compiling report " + arguments.get("report"));
 						jR = JasperCompileManager.compileReport(jD);
 					} else {
+						System.out.println("Loading report " + arguments.get("report"));
 						jR = (JasperReport) JRLoader.loadObject(arguments
 								.get("ipath")
 								+ arguments.get("report"));
