@@ -7,9 +7,11 @@ package org.freemedsoftware.util;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Properties;
 
 import net.sf.jasperreports.engine.JRException;
@@ -30,6 +32,8 @@ public class JasperWrapper {
 	public static String VERSION = "0.2";
 
 	private static Hashtable<String, String> arguments = new Hashtable<String, String>();
+
+	private static List<String> reportParameters = new ArrayList<String>();
 
 	private static HashMap<String, String> hm = new HashMap<String, String>();
 
@@ -70,7 +74,7 @@ public class JasperWrapper {
 				conn = DriverManager.getConnection(arguments.get("dburl"),
 						props);
 			} catch (Exception e1) {
-				System.out.println("JasperWrapper Database Exception occured: "
+				System.err.println("JasperWrapper Database Exception occured: "
 						+ e1.getMessage());
 				e1.printStackTrace();
 				System.exit(1);
@@ -78,20 +82,37 @@ public class JasperWrapper {
 			try {
 				if (conn != null) {
 					JasperReport jR = null;
-					if (arguments.get("report").toLowerCase().endsWith(".jrxml")) {
-						System.out.println("Loading report " + arguments.get("report"));
+					if (arguments.get("report").toLowerCase()
+							.endsWith(".jrxml")) {
+						System.err.println("Loading report "
+								+ arguments.get("report"));
 						JasperDesign jD = JRXmlLoader.load(arguments
 								.get("ipath")
 								+ arguments.get("report"));
-						System.out.println("Compiling report " + arguments.get("report"));
+						System.out.println("Compiling report "
+								+ arguments.get("report"));
 						jR = JasperCompileManager.compileReport(jD);
 					} else {
-						System.out.println("Loading report " + arguments.get("report"));
+						System.err.println("Loading report "
+								+ arguments.get("report"));
 						jR = (JasperReport) JRLoader.loadObject(arguments
 								.get("ipath")
 								+ arguments.get("report"));
 					}
+
+					// Create parameters in hm
+					if (reportParameters.size() > 0) {
+						for (int iter = 0; iter < reportParameters.size(); iter++) {
+							System.err.println("[param"
+									+ new Integer(iter).toString() + "] "
+									+ reportParameters.get(iter));
+							hm.put("param" + new Integer(iter).toString(),
+									reportParameters.get(iter));
+						}
+					}
+
 					// Fill out report
+					System.err.println("Filling report");
 					JasperPrint jP = JasperFillManager.fillReport(jR, hm, conn);
 
 					String outputFileName = "/dev/stdout";
@@ -141,24 +162,25 @@ public class JasperWrapper {
 						}
 					}
 
+					System.err.println("Output file is " + outputFileName);
+
 					if (format.toUpperCase().equals("PDF")) {
 						JasperExportManager.exportReportToPdfFile(jP,
 								outputFileName);
-					}
-					if (format.toUpperCase().equals("XML")) {
+					} else if (format.toUpperCase().equals("XML")) {
 						JasperExportManager.exportReportToXmlFile(jP,
 								outputFileName, true);
-					}
-					if (format.toUpperCase().equals("HTML")) {
+					} else if (format.toUpperCase().equals("HTML")) {
 						JasperExportManager.exportReportToHtmlFile(jP,
 								outputFileName);
-					}
-					if (format.toUpperCase().equals("XLS")) {
+					} else if (format.toUpperCase().equals("XLS")) {
 						generateXLSOutput(jP, outputFileName);
+					} else {
+						System.err.println("No valid format given.");
 					}
 				}
 			} catch (Exception e2) {
-				System.out.println("JasperWrapper Exception occured: "
+				System.err.println("JasperWrapper Exception occured: "
 						+ e2.getMessage());
 				e2.printStackTrace();
 			}
@@ -183,8 +205,10 @@ public class JasperWrapper {
 		System.out.println("\treport      name report file");
 		System.out.println("\tipath       input path containing all files");
 		System.out.println("\topath       output path");
+		System.out.println("\tparam       add parameter");
 		System.out
 				.println("\tformat      output format {PDF,HTML,XML,XLS} (defaults to PDF)");
+		System.out.println("\tparam       add parameter");
 		System.out.println("");
 
 		System.out.println(arguments.toString());
@@ -199,9 +223,16 @@ public class JasperWrapper {
 				// parameter found
 				String workpar = args[i].substring(2);
 				if (workpar.indexOf("=") > 0) {
-					arguments.put(workpar.substring(0, workpar.indexOf("="))
-							.toLowerCase(), workpar.substring(workpar
-							.indexOf("=") + 1));
+					String k = workpar.substring(0, workpar.indexOf("="))
+							.toLowerCase();
+					String v = workpar.substring(workpar.indexOf("=") + 1);
+					if (k.equals("param")) {
+						// Report parameters add to stack
+						reportParameters.add(v);
+					} else {
+						// All else goes into argument bin
+						arguments.put(k, v);
+					}
 				}
 			} else {
 				if (hold == null) {
