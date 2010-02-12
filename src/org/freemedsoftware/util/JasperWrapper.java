@@ -7,6 +7,7 @@ package org.freemedsoftware.util;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,15 +30,20 @@ import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
 public class JasperWrapper {
 
-	public static String VERSION = "0.2";
+	public static String VERSION = "0.3";
 
 	private static Hashtable<String, String> arguments = new Hashtable<String, String>();
 
 	private static List<String> reportParameters = new ArrayList<String>();
 
-	private static HashMap<String, String> hm = new HashMap<String, String>();
+	private static List<String> reportFormat = new ArrayList<String>();
+
+	private static HashMap<String, Object> hm = new HashMap<String, Object>();
 
 	private static String[] VALID_FORMATS = { "PDF", "HTML", "XML", "XLS" };
+
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd");
 
 	public JasperWrapper() {
 		super();
@@ -103,11 +109,44 @@ public class JasperWrapper {
 					// Create parameters in hm
 					if (reportParameters.size() > 0) {
 						for (int iter = 0; iter < reportParameters.size(); iter++) {
-							System.err.println("[param"
-									+ new Integer(iter).toString() + "] "
-									+ reportParameters.get(iter));
-							hm.put("param" + new Integer(iter).toString(),
-									reportParameters.get(iter));
+
+							String pName = "param"
+									+ new Integer(iter).toString();
+							String pFormat = reportFormat.get(iter);
+							String type = "";
+							if (pFormat == null
+									|| pFormat.equalsIgnoreCase("string")) {
+								type = "java.lang.String";
+								hm.put(pName, reportParameters.get(iter));
+							} else if (pFormat.equalsIgnoreCase("int")
+									|| pFormat.equalsIgnoreCase("integer")) {
+								type = "java.lang.Integer";
+								hm.put(pName, Integer.parseInt(reportParameters
+										.get(iter)));
+							} else if (pFormat.equalsIgnoreCase("long")) {
+								type = "java.lang.Long";
+								hm.put(pName, Long.parseLong(reportParameters
+										.get(iter)));
+							} else if (pFormat.equalsIgnoreCase("double")) {
+								type = "java.lang.Double";
+								hm.put(pName,
+										Double.parseDouble(reportParameters
+												.get(iter)));
+							} else if (pFormat.equalsIgnoreCase("date")) {
+								type = "java.util.Date";
+								hm.put(pName, dateFormat.parse(reportParameters
+										.get(iter)));
+							} else {
+								System.err
+										.println("["
+												+ pName
+												+ "]"
+												+ " type unknown, falling back to string");
+								type = "java.lang.String";
+								hm.put(pName, reportParameters.get(iter));
+							}
+							System.err.println("[" + pName + "/" + pFormat
+									+ "] " + reportParameters.get(iter));
 						}
 					}
 
@@ -209,6 +248,8 @@ public class JasperWrapper {
 		System.out
 				.println("\tformat      output format {PDF,HTML,XML,XLS} (defaults to PDF)");
 		System.out.println("\tparam       add parameter");
+		System.out
+				.println("\tparamformat add parameter format {int,long,string,date,double}");
 		System.out.println("");
 
 		System.out.println(arguments.toString());
@@ -229,6 +270,9 @@ public class JasperWrapper {
 					if (k.equals("param")) {
 						// Report parameters add to stack
 						reportParameters.add(v);
+					} else if (k.equals("paramformat")) {
+						// Report parameter format add to stack
+						reportFormat.add(v);
 					} else {
 						// All else goes into argument bin
 						arguments.put(k, v);
