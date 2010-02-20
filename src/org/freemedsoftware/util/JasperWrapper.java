@@ -4,6 +4,7 @@
 
 package org.freemedsoftware.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,7 +31,7 @@ import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
 public class JasperWrapper {
 
-	public static String VERSION = "0.3";
+	public static String VERSION = "0.4";
 
 	private static Hashtable<String, String> arguments = new Hashtable<String, String>();
 
@@ -87,24 +88,9 @@ public class JasperWrapper {
 			}
 			try {
 				if (conn != null) {
-					JasperReport jR = null;
-					if (arguments.get("report").toLowerCase()
-							.endsWith(".jrxml")) {
-						System.err.println("Loading report "
-								+ arguments.get("report"));
-						JasperDesign jD = JRXmlLoader.load(arguments
-								.get("ipath")
-								+ arguments.get("report"));
-						System.out.println("Compiling report "
-								+ arguments.get("report"));
-						jR = JasperCompileManager.compileReport(jD);
-					} else {
-						System.err.println("Loading report "
-								+ arguments.get("report"));
-						jR = (JasperReport) JRLoader.loadObject(arguments
-								.get("ipath")
-								+ arguments.get("report"));
-					}
+					// Grab the report, cached or not
+					JasperReport jR = cachedLoadReport(arguments.get("ipath"),
+							arguments.get("opath"), arguments.get("report"));
 
 					// Create parameters in hm
 					if (reportParameters.size() > 0) {
@@ -154,48 +140,39 @@ public class JasperWrapper {
 					System.err.println("Filling report");
 					JasperPrint jP = JasperFillManager.fillReport(jR, hm, conn);
 
+					String outputPrefix = (arguments.get("opath"))
+							+ arguments.get("report").substring(0,
+									arguments.get("report").lastIndexOf("."));
+					if (arguments.get("oprefix") != null) {
+						outputPrefix = arguments.get("opath")
+								+ arguments.get("oprefix");
+					}
+
 					String outputFileName = "/dev/stdout";
 					if (format.toUpperCase().equals("PDF")) {
 						if (arguments.get("opath").length() > 0) {
-							outputFileName = (arguments.get("opath"))
-									+ arguments.get("report").substring(
-											0,
-											arguments.get("report")
-													.lastIndexOf(".")) + ".pdf";
+							outputFileName = outputPrefix + ".pdf";
 						} else {
 							outputFileName = "/dev/stdout";
 						}
 					}
 					if (format.toUpperCase().equals("XML")) {
 						if (arguments.get("opath").length() > 0) {
-							outputFileName = (arguments.get("opath"))
-									+ arguments.get("report").substring(
-											0,
-											arguments.get("report")
-													.lastIndexOf(".")) + ".xml";
+							outputFileName = outputPrefix + ".xml";
 						} else {
 							outputFileName = "/dev/stdout";
 						}
 					}
 					if (format.toUpperCase().equals("HTML")) {
 						if (arguments.get("opath").length() > 0) {
-							outputFileName = ((String) arguments.get("opath"))
-									+ ((String) arguments.get("report"))
-											.substring(0, ((String) arguments
-													.get("report"))
-													.lastIndexOf("."))
-									+ ".html";
+							outputFileName = outputPrefix + ".html";
 						} else {
 							outputFileName = "/dev/stdout";
 						}
 					}
 					if (format.toUpperCase().equals("XLS")) {
 						if (arguments.get("opath").length() > 0) {
-							outputFileName = ((String) arguments.get("opath"))
-									+ ((String) arguments.get("report"))
-											.substring(0, ((String) arguments
-													.get("report"))
-													.lastIndexOf(".")) + ".xls";
+							outputFileName = outputPrefix + ".xls";
 						} else {
 							outputFileName = "/dev/stdout";
 						}
@@ -226,6 +203,37 @@ public class JasperWrapper {
 		}
 	}
 
+	private static JasperReport cachedLoadReport(String inputPath,
+			String outputPath, String reportName) throws JRException {
+		JasperReport jR = null;
+		String reportFile = inputPath + reportName;
+		String cachedFile = outputPath + reportName + ".cache";
+		if (reportName.toLowerCase().endsWith(".jrxml")) {
+			// Check for cached report
+			if (new File(cachedFile).exists()
+					&& (new File(cachedFile).lastModified() > new File(
+							reportFile).lastModified())) {
+				// Read and return
+				System.err.println("Loading compiled report " + reportName
+						+ " from " + cachedFile);
+				jR = (JasperReport) JRLoader.loadObject(cachedFile);
+			} else {
+				System.err.println("Loading report " + reportName);
+				JasperDesign jD = JRXmlLoader.load(reportFile);
+				System.out.println("Compiling report " + reportName + " to "
+						+ cachedFile);
+				JasperCompileManager.compileReportToFile(jD, cachedFile);
+				System.err.println("Loading compiled report " + reportName
+						+ " from " + cachedFile);
+				jR = (JasperReport) JRLoader.loadObject(cachedFile);
+			}
+		} else {
+			System.err.println("Loading compiled report " + reportName);
+			jR = (JasperReport) JRLoader.loadObject(reportFile);
+		}
+		return jR;
+	}
+
 	private static void showSyntax() {
 		// Usage screen
 		System.out.println("JasperWrapper version " + VERSION);
@@ -244,6 +252,7 @@ public class JasperWrapper {
 		System.out.println("\treport      name report file");
 		System.out.println("\tipath       input path containing all files");
 		System.out.println("\topath       output path");
+		System.out.println("\toprefix     output prefix, optional");
 		System.out.println("\tparam       add parameter");
 		System.out
 				.println("\tformat      output format {PDF,HTML,XML,XLS} (defaults to PDF)");
