@@ -38,7 +38,8 @@
       <fatjar.jarsource file="lib/commons-logging-1.1.1.jar" relpath="" />
       <fatjar.jarsource file="lib/groovy-all-1.7.0.jar" relpath="" />
       <fatjar.jarsource file="lib/itext-2.1.3.jar" relpath="" />
-      <fatjar.jarsource file="lib/jasperreports-3.7.0.jar" relpath="" />
+      <fatjar.jarsource file="lib/jasperreports-3.7.1.jar" relpath="" />
+      <fatjar.jarsource file="lib/jasperreports-fonts-3.7.1.jar" relpath="" />
       <fatjar.jarsource file="lib/jxl-2.6.12.jar" relpath="" />
       <fatjar.jarsource file="lib/mysql-connector-java-5.1.10-bin.jar" relpath="" />
     </fatjar.build>

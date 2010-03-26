@@ -3,7 +3,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
 	<classpathentry kind="lib" path="lib/fatjar-0.0.31.jar"/>
-	<classpathentry kind="lib" path="lib/jasperreports-3.7.0.jar"/>
+	<classpathentry kind="lib" path="lib/jasperreports-3.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/jasperreports-fonts-3.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.10-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
