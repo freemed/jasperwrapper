@@ -25,13 +25,15 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.export.JExcelApiExporter;
+import net.sf.jasperreports.engine.export.JRHtmlExporter;
+import net.sf.jasperreports.engine.export.JRHtmlExporterParameter;
 import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
 public class JasperWrapper {
 
-	public static String VERSION = "0.4";
+	public static String VERSION = "0.5";
 
 	private static Hashtable<String, String> arguments = new Hashtable<String, String>();
 
@@ -187,8 +189,7 @@ public class JasperWrapper {
 						JasperExportManager.exportReportToXmlFile(jP,
 								outputFileName, true);
 					} else if (format.toUpperCase().equals("HTML")) {
-						JasperExportManager.exportReportToHtmlFile(jP,
-								outputFileName);
+						generateHTMLOutput(jP, outputFileName);
 					} else if (format.toUpperCase().equals("XLS")) {
 						generateXLSOutput(jP, outputFileName);
 					} else {
@@ -253,10 +254,10 @@ public class JasperWrapper {
 		System.out.println("\tipath       input path containing all files");
 		System.out.println("\topath       output path");
 		System.out.println("\toprefix     output prefix, optional");
+		System.out.println("\toimgurl     output image url base");
 		System.out.println("\tparam       add parameter");
 		System.out
 				.println("\tformat      output format {PDF,HTML,XML,XLS} (defaults to PDF)");
-		System.out.println("\tparam       add parameter");
 		System.out
 				.println("\tparamformat add parameter format {int,long,string,date,double}");
 		System.out.println("");
@@ -320,6 +321,33 @@ public class JasperWrapper {
 		}
 
 		return booValue;
+	}
+
+	public static void generateHTMLOutput(JasperPrint jasperPrint,
+			String outputFileName) throws IOException, JRException {
+		JRHtmlExporter exporter = new JRHtmlExporter();
+
+		exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
+		exporter.setParameter(JRHtmlExporterParameter.HTML_FOOTER, " ");
+
+		// If "oimgurl" is specified, set image URL base
+		if (arguments.containsKey("oimgurl")) {
+			exporter.setParameter(JRHtmlExporterParameter.IMAGES_URI, arguments
+					.get("oimgurl"));
+			exporter.setParameter(
+					JRHtmlExporterParameter.IS_USING_IMAGES_TO_ALIGN,
+					Boolean.TRUE);
+		} else {
+			exporter.setParameter(
+					JRHtmlExporterParameter.IS_USING_IMAGES_TO_ALIGN,
+					Boolean.FALSE);
+		}
+
+		// If you want to export the XLS report to physical file.
+		exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME,
+				outputFileName);
+
+		exporter.exportReport();
 	}
 
 	public static void generateXLSOutput(JasperPrint jasperPrint,
