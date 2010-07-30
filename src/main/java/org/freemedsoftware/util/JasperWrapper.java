@@ -33,7 +33,7 @@ import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
 public class JasperWrapper {
 
-	public static String VERSION = "0.5";
+	public static String VERSION = "0.6";
 
 	private static Hashtable<String, String> arguments = new Hashtable<String, String>();
 
@@ -137,6 +137,9 @@ public class JasperWrapper {
 									+ "] " + reportParameters.get(iter));
 						}
 					}
+
+					// Push input path into report parameters
+					hm.put("ipath", arguments.get("ipath"));
 
 					// Fill out report
 					System.err.println("Filling report");
