@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.freemedsoftware.util</groupId>
-    <version>0.5</version>
+    <version>0.6</version>
     <artifactId>JasperWrapper</artifactId>
     <name>Jasper Wrapper</name>
     <packaging>jar</packaging>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports</artifactId>
-            <version>3.7.4</version>
+            <version>4.0.1</version>
             <scope>compile</scope>
         </dependency>
 
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-            <version>1.7.3</version>
+            <version>1.7.10</version>
             <scope>compile</scope>
         </dependency>
 
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.13</version>
+            <version>5.1.15</version>
             <scope>compile</scope>
         </dependency>
 
