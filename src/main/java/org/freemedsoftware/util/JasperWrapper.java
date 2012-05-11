@@ -33,7 +33,7 @@ import net.sf.jasperreports.engine.xml.JRXmlLoader;
 
 public class JasperWrapper {
 
-	public static String VERSION = "0.6";
+	public static String VERSION = "0.6.1";
 
 	private static Hashtable<String, String> arguments = new Hashtable<String, String>();
 
