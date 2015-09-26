@@ -1,6 +1,7 @@
 // Jasper Wrapper
 //
 // Authors:
+//	ComSoft GbR Berlin
 //      Jeff Buchbinder <jeff@freemedsoftware.org>
 //
 // FreeMED Electronic Medical Record and Practice Management System
@@ -238,20 +239,20 @@ public class JasperWrapper {
 				// Read and return
 				System.err.println("Loading compiled report " + reportName
 						+ " from " + cachedFile);
-				jR = (JasperReport) JRLoader.loadObject(cachedFile);
+				jR = (JasperReport) JRLoader.loadObject(new File(cachedFile));
 			} else {
 				System.err.println("Loading report " + reportName);
-				JasperDesign jD = JRXmlLoader.load(reportFile);
+				JasperDesign jD = JRXmlLoader.load(new File(reportFile));
 				System.out.println("Compiling report " + reportName + " to "
 						+ cachedFile);
 				JasperCompileManager.compileReportToFile(jD, cachedFile);
 				System.err.println("Loading compiled report " + reportName
 						+ " from " + cachedFile);
-				jR = (JasperReport) JRLoader.loadObject(cachedFile);
+				jR = (JasperReport) JRLoader.loadObject(new File(cachedFile));
 			}
 		} else {
 			System.err.println("Loading compiled report " + reportName);
-			jR = (JasperReport) JRLoader.loadObject(reportFile);
+			jR = (JasperReport) JRLoader.loadObject(new File(reportFile));
 		}
 		return jR;
 	}
