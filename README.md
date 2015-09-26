@@ -1,24 +1,20 @@
-JASPERWRAPPER
-=============
+# JASPERWRAPPER
 
 JasperWrapper is a Java "wrapper" around the JasperReports library, allowing
 JasperReports queries and formats to be executed from other environments. Once
 assembled, JasperWrapper only requires a working JRE and its compiled JAR
 file.
 
-PREREQUISITES
--------------
+## PREREQUISITES
 
- * JRE 1.5+
- * Maven2
+ * JRE 1.6+
+ * Gradle
 
-BUILDING
---------
+## BUILDING
 
-`mvn package` will generate a jar file in `target/`.
+``gradle jar`` will generate a jar file in `target/`.
 
-USAGE
------
+## USAGE
 
 ```
 usage: JasperWrapper.jar [arguments] [[key] [value] ...]

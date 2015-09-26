@@ -1,0 +1,42 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+mainClassName = 'org.freemedsoftware.util.JasperWrapper'
+
+group = 'org.freemedsoftware.util'
+artifact = 'JasperWrapper'
+version = System.properties['sysVersion'] != null ? System.properties['sysVersion'] : '0.6.1'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'net.sourceforge.jexcelapi:jxl:2.6.12'
+	compile( 'net.sf.jasperreports:jasperreports:4.7.1' ) {
+		exclude group: 'org.bouncycastle'
+		exclude group: 'bouncycastle'
+	}
+	compile 'commons-logging:commons-logging:1.1.1'
+	compile 'org.codehaus.groovy:groovy-all:2.0.4'
+	compile 'jfree:jcommon:1.0.16'
+	compile 'jfree:jfreechart:1.0.13'
+	compile 'mysql:mysql-connector-java:5.1.36'
+}
+
+jar {
+	manifest { 
+		attributes "Main-Class": "$mainClassName"
+	}
+
+	from {
+		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+}
+
