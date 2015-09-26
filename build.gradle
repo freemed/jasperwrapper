@@ -7,7 +7,6 @@ apply plugin: 'application'
 mainClassName = 'org.freemedsoftware.util.JasperWrapper'
 
 group = 'org.freemedsoftware.util'
-artifact = 'JasperWrapper'
 version = System.properties['sysVersion'] != null ? System.properties['sysVersion'] : '0.6.2'
 
 sourceCompatibility = 1.6
