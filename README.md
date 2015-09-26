@@ -1,5 +1,7 @@
 # JASPERWRAPPER
 
+[![Build Status](https://travis-ci.org/freemed/jasperwrapper.svg?branch=master)](https://travis-ci.org/freemed/jasperwrapper)
+
 JasperWrapper is a Java "wrapper" around the JasperReports library, allowing
 JasperReports queries and formats to be executed from other environments. Once
 assembled, JasperWrapper only requires a working JRE and its compiled JAR
